@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Claude / skill tooling (not part of the site)
+.claude/
+.agents/
+skills-lock.json
+
+# Editor / OS junk
+*.swp
+Thumbs.db
+
+# Dependencies (not used here, but in case)
+node_modules/

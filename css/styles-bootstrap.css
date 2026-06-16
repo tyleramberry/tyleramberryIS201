@@ -1,0 +1,273 @@
+/* ============================================================
+   Custom CSS 1: for Bootstrap pages (index, resume, about)
+   Layered on top of Bootstrap 5 to give the site its own look.
+   ============================================================ */
+
+/* ---------- 1. Brand colors + typography ---------- */
+:root {
+  --brand-dark: #0b1d2a;        /* deep navy (kept) */
+  --brand-accent: #1d4ed8;      /* royal blue (single accent) */
+  --brand-accent-dark: #1e40af; /* darker shade of the same blue, for hovers */
+  --brand-soft: #f4f7fa;        /* soft background */
+  --brand-text: #1d2733;
+}
+
+body {
+  font-family: "Geist", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--brand-text);
+  background-color: var(--brand-soft);
+}
+
+h1, h2, h3, h4, h5 {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- 2. Navbar ---------- */
+.navbar-brand {
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.navbar-brand .brand-mark {
+  color: var(--brand-accent);
+}
+
+.navbar.bg-brand {
+  background-color: var(--brand-dark) !important;
+}
+
+.navbar .nav-link {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+  color: var(--brand-accent) !important;
+}
+
+/* ---------- 3. Hero section (used on index.html) ---------- */
+.hero {
+  background: linear-gradient(135deg, #0b1d2a 0%, #142a44 60%, #1f3a5f 100%);
+  color: #fff;
+  padding: 6rem 0 5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  /* soft glowing accent in the corner */
+  content: "";
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, rgba(29, 78, 216, 0.35) 0%, transparent 70%);
+  top: -120px;
+  right: -120px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+}
+
+.hero .lead {
+  max-width: 600px;
+  opacity: 0.9;
+}
+
+.hero .btn-accent {
+  background-color: var(--brand-accent);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.hero .btn-accent:hover {
+  background-color: var(--brand-accent-dark);
+  color: #ffffff;
+}
+
+/* ---------- 4. Section spacing ---------- */
+.section {
+  padding: 4.5rem 0;
+}
+
+.section-title {
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  display: block;
+  width: 60px;
+  height: 4px;
+  background: var(--brand-accent);
+  margin-top: 0.75rem;
+  border-radius: 2px;
+}
+
+/* ---------- 5. Feature / service cards ---------- */
+.feature-card {
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 4px 18px rgba(11, 29, 42, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  height: 100%;
+}
+
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(11, 29, 42, 0.12);
+}
+
+.feature-card .icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  /* single-accent solid fill, no more gradient (one accent per page) */
+  background: var(--brand-accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+/* ---------- 6. Resume page styling ---------- */
+.resume-header {
+  background: linear-gradient(135deg, #0b1d2a, #1f3a5f);
+  color: #fff;
+  padding: 3.5rem 0;
+}
+
+.resume-header img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  /* shift the crop upward so the face shows in the circle
+     instead of getting clipped above the shoulders */
+  object-position: center top;
+  border-radius: 50%;
+  border: 4px solid var(--brand-accent);
+}
+
+.resume-section h3 {
+  border-left: 4px solid var(--brand-accent);
+  padding-left: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.timeline-item {
+  border-left: 2px solid #dde3ea;
+  padding: 0 0 1.5rem 1.25rem;
+  margin-left: 0.5rem;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: "";
+  width: 12px;
+  height: 12px;
+  background: var(--brand-accent);
+  border-radius: 50%;
+  position: absolute;
+  left: -7px;
+  top: 4px;
+}
+
+.timeline-item .role {
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+
+.timeline-item .meta {
+  font-size: 0.9rem;
+  color: #6c7a89;
+  margin-bottom: 0.5rem;
+}
+
+/* skill pills */
+.skill-pill {
+  display: inline-block;
+  background: #fff;
+  border: 1px solid #dde3ea;
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  margin: 0.25rem 0.3rem 0.25rem 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.skill-pill:hover {
+  border-color: var(--brand-accent);
+  color: var(--brand-accent);
+}
+
+/* ---------- 7. Footer ---------- */
+.site-footer {
+  background: var(--brand-dark);
+  color: rgba(255, 255, 255, 0.75);
+  padding: 2.5rem 0 1.5rem;
+  margin-top: 4rem;
+}
+
+.site-footer a {
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.site-footer a:hover {
+  color: var(--brand-accent);
+}
+
+.social-icons a {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  margin: 0 0.3rem;
+  font-size: 1.05rem;
+  transition: all 0.2s ease;
+}
+
+.social-icons a:hover {
+  background: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: #ffffff;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  font-size: 0.875rem;
+  opacity: 0.7;
+}
+
+/* ---------- 8. About page extras ---------- */
+.about-photo {
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(11, 29, 42, 0.15);
+  width: 100%;
+  height: auto;
+}
+
+.value-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  height: 100%;
+  border-top: 4px solid var(--brand-accent);
+  box-shadow: 0 4px 14px rgba(11, 29, 42, 0.05);
+}

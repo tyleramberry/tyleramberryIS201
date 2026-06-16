@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<!--
+  scratch.html: built entirely from scratch, NO Bootstrap.
+  Topic: Edge AI Solutions (Tyler's AI consulting business).
+  All required elements for the IS 201 scratch page are present:
+    - nested lists (UL inside OL)
+    - an image (not from Bootstrap)
+    - embedded YouTube video
+    - on-page anchor / jump link
+    - custom background via CSS
+    - linked external stylesheet with 4+ rules, font-color, font-family
+    - 3+ <div> elements for layout (commented below)
+    - embedded interactive Tableau Public visualization
+    - navigation back to index.html and a link to webapp.html
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edge AI Solutions · Tyler Amberry</title>
+  <link rel="stylesheet" href="css/styles-scratch.css" />
+</head>
+<body>
+
+  <!-- DIV #1: top navigation bar -->
+  <div class="top-nav">
+    <div>
+      <a href="index.html">&larr; Back to Home</a>
+      <a href="resume.html">Résumé</a>
+      <a href="about.html">About</a>
+    </div>
+    <div>
+      <a href="webapp.html">Try the AI Agent Builder &rarr;</a>
+    </div>
+  </div>
+
+  <!-- DIV #2: main page wrapper that constrains width and centers content -->
+  <div class="page-wrapper">
+
+    <!-- Hero block introducing the topic -->
+    <div class="hero-block">
+      <h1>Edge AI Solutions</h1>
+      <p>
+        Practical AI agents and automations for small businesses,
+        without the hype, without the giant agency price tag.
+      </p>
+    </div>
+
+    <!-- On-page anchor / jump-link menu (required element) -->
+    <div class="jump-links">
+      <strong>Jump to:</strong>
+      <a href="#what-we-do">What we do</a>
+      <a href="#process">Our process</a>
+      <a href="#video">Watch: What are AI Agents?</a>
+      <a href="#data">Live data dashboard</a>
+      <a href="#contact">Contact</a>
+    </div>
+
+    <!-- ===== Section: What we do (with required image + nested lists) ===== -->
+    <section id="what-we-do" class="section-card">
+      <h2>What we do</h2>
+      <p>
+        Edge AI Solutions helps small and mid-sized businesses adopt AI
+        in three core ways:
+      </p>
+
+      <!-- Required: an unordered list nested inside an ordered list -->
+      <ol>
+        <li>
+          AI Agents
+          <ul>
+            <li>24/7 lead-response chatbots for service businesses</li>
+            <li>Internal Q&amp;A copilots that read your company docs</li>
+            <li>Sales-qualifying agents that book straight to your calendar</li>
+          </ul>
+        </li>
+        <li>
+          Workflow Automation
+          <ul>
+            <li>Auto-routing customer inquiries to the right team member</li>
+            <li>AI-summarized inboxes and CRM updates</li>
+            <li>Recurring report generation and delivery</li>
+          </ul>
+        </li>
+        <li>
+          Strategy &amp; Training
+          <ul>
+            <li>1-hour workshops for your team on practical AI use</li>
+            <li>Custom prompt libraries tailored to your workflows</li>
+            <li>Ongoing advisory as your AI stack grows</li>
+          </ul>
+        </li>
+      </ol>
+
+      <!-- Required: an image (not from Bootstrap) -->
+      <img
+        class="feature-image"
+        src="https://picsum.photos/seed/edgeaiscratch/900/420"
+        alt="Edge AI Solutions, abstract tech illustration"
+      />
+    </section>
+
+    <!-- DIV #3: two-up grid for "process" steps, used for layout -->
+    <section id="process" class="section-card">
+      <h2>Our process</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 12px;">
+
+        <div style="background:#eaf0fb; padding:18px; border-radius:6px;">
+          <strong>1. Discover</strong>
+          <p style="margin:6px 0 0; font-size:0.95rem;">
+            We map your workflows and find the highest-leverage spots
+            for AI to step in.
+          </p>
+        </div>
+
+        <div style="background:#eaf0fb; padding:18px; border-radius:6px;">
+          <strong>2. Build</strong>
+          <p style="margin:6px 0 0; font-size:0.95rem;">
+            We design and ship working agents or automations in days,
+            not months.
+          </p>
+        </div>
+
+        <div style="background:#eaf0fb; padding:18px; border-radius:6px;">
+          <strong>3. Train</strong>
+          <p style="margin:6px 0 0; font-size:0.95rem;">
+            Your team learns to use, tweak, and maintain everything we
+            build.
+          </p>
+        </div>
+
+        <div style="background:#eaf0fb; padding:18px; border-radius:6px;">
+          <strong>4. Iterate</strong>
+          <p style="margin:6px 0 0; font-size:0.95rem;">
+            We monitor results and improve agents over time as your
+            business changes.
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===== Section: YouTube video (required) ===== -->
+    <section id="video" class="section-card">
+      <h2>What exactly is an AI agent?</h2>
+      <p>
+        IBM's short explainer on AI agents, a great starting point for
+        anyone trying to understand the difference between a chatbot and
+        a true agent.
+      </p>
+      <div class="video-wrap">
+        <iframe
+          src="https://www.youtube.com/embed/F8NKVhkZZWI"
+          title="IBM: What are AI Agents?"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </section>
+
+    <!-- ===== Section: Tableau Public embed (required, real public dashboard) ===== -->
+    <section id="data" class="section-card">
+      <h2>Live data dashboard</h2>
+      <p>
+        An embedded interactive Tableau Public dashboard, Tableau's
+        official Regional Sample workbook. Try filtering it directly
+        below.
+      </p>
+
+      <div class="tableau-wrap">
+        <div class='tableauPlaceholder' id='vizEdgeAI1718000000000' style='position: relative; width:100%;'>
+          <noscript>
+            <a href='#'>
+              <img alt='Storms ' src='https://public.tableau.com/static/images/Re/RegionalSampleWorkbook/Storms/1_rss.png' style='border: none' />
+            </a>
+          </noscript>
+          <object class='tableauViz' style='display:none;'>
+            <param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' />
+            <param name='embed_code_version' value='3' />
+            <param name='site_root' value='' />
+            <param name='name' value='RegionalSampleWorkbook&#47;Storms' />
+            <param name='tabs' value='no' />
+            <param name='toolbar' value='yes' />
+            <param name='static_image' value='https://public.tableau.com/static/images/Re/RegionalSampleWorkbook/Storms/1.png' />
+            <param name='animate_transition' value='yes' />
+            <param name='display_static_image' value='yes' />
+            <param name='display_spinner' value='yes' />
+            <param name='display_overlay' value='yes' />
+            <param name='display_count' value='yes' />
+            <param name='language' value='en-US' />
+          </object>
+        </div>
+        <script type='text/javascript'>
+          var divElement = document.getElementById('vizEdgeAI1718000000000');
+          var vizElement = divElement.getElementsByTagName('object')[0];
+          vizElement.style.width = '100%';
+          vizElement.style.height = (divElement.offsetWidth * 0.75) + 'px';
+          var scriptElement = document.createElement('script');
+          scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';
+          vizElement.parentNode.insertBefore(scriptElement, vizElement);
+        </script>
+      </div>
+    </section>
+
+    <!-- ===== Section: Contact ===== -->
+    <section id="contact" class="section-card">
+      <h2>Get in touch</h2>
+      <p>
+        Curious what AI could do in your business? Drop me a line.
+      </p>
+      <p>
+        Email: <a href="mailto:tyleramberry@gmail.com">tyleramberry@gmail.com</a><br />
+        LinkedIn:
+        <a href="https://www.linkedin.com/in/tyler-amberry-49150438b/" target="_blank" rel="noopener">
+          linkedin.com/in/tyler-amberry
+        </a>
+      </p>
+      <p style="margin-top: 18px;">
+        <a href="#what-we-do">&uarr; Back to top</a>
+      </p>
+    </section>
+
+  </div> <!-- /page-wrapper -->
+
+  <!-- Simple footer (not Bootstrap) -->
+  <div class="scratch-footer">
+    &copy; <span id="year"></span> Tyler Amberry ·
+    <a href="index.html">Home</a> ·
+    <a href="webapp.html">Web App</a>
+  </div>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>

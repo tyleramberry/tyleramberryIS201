@@ -1,0 +1,211 @@
+/* ============================================================
+   Custom CSS 2: for scratch.html (no Bootstrap, fully hand-built)
+   Includes the required rules: font-color, font-family,
+   plus background and several layout rules.
+   ============================================================ */
+
+/* --- Required rule: page-wide font-family --- */
+body {
+  font-family: "Geist", "Helvetica Neue", Arial, sans-serif;
+  /* --- Required rule: custom background (color + soft gradient image) --- */
+  background-color: #f4f7fa;
+  background-image: linear-gradient(180deg, #eaf0fb 0%, #f4f7fa 40%, #f4f7fa 100%);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+}
+
+/* --- Required rule: font-color for main text --- */
+body,
+p,
+li {
+  color: #1d2733;
+}
+
+/* Headings get their own brand color */
+h1, h2, h3 {
+  color: #1d4ed8;
+  font-family: "Georgia", "Times New Roman", serif;
+  margin-top: 0;
+}
+
+/* ----- Top navigation bar ----- */
+.top-nav {
+  background-color: #0b1d2a;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.top-nav a {
+  color: #ffffff;
+  text-decoration: none;
+  margin-right: 18px;
+  font-weight: 600;
+}
+
+.top-nav a:hover {
+  color: #60a5fa;
+}
+
+/* ----- Page wrapper (constrains content width) ----- */
+.page-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ----- Hero block at top of page ----- */
+.hero-block {
+  background-color: #ffffff;
+  border-left: 6px solid #1d4ed8;
+  padding: 28px 32px;
+  margin-bottom: 32px;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(11, 29, 42, 0.06);
+}
+
+.hero-block h1 {
+  margin-bottom: 8px;
+  font-size: 2.2rem;
+}
+
+.hero-block p {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #455160;
+}
+
+/* ----- Quick-jump anchor link menu ----- */
+.jump-links {
+  background-color: #ffffff;
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(11, 29, 42, 0.05);
+}
+
+.jump-links strong {
+  margin-right: 10px;
+  color: #0b1d2a;
+}
+
+.jump-links a {
+  display: inline-block;
+  margin: 4px 10px 4px 0;
+  color: #1d4ed8;
+  text-decoration: none;
+  font-weight: 600;
+  border-bottom: 2px solid transparent;
+}
+
+.jump-links a:hover {
+  border-bottom-color: #1d4ed8;
+}
+
+/* ----- Generic section card ----- */
+.section-card {
+  background-color: #ffffff;
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  border-radius: 6px;
+  box-shadow: 0 2px 12px rgba(11, 29, 42, 0.06);
+}
+
+.section-card h2 {
+  border-bottom: 2px solid #e3ebf0;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+}
+
+/* ----- Lists ----- */
+ol {
+  padding-left: 24px;
+}
+
+ol > li {
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+ul {
+  padding-left: 22px;
+  margin-top: 8px;
+}
+
+ul li {
+  font-weight: 400;
+  margin-bottom: 4px;
+}
+
+/* ----- Image styling ----- */
+.feature-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 16px 0;
+  box-shadow: 0 4px 14px rgba(11, 29, 42, 0.1);
+}
+
+/* ----- Responsive YouTube embed ----- */
+.video-wrap {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.video-wrap iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+/* ----- Tableau container ----- */
+.tableau-wrap {
+  margin-top: 16px;
+}
+
+/* ----- Footer ----- */
+.scratch-footer {
+  text-align: center;
+  color: #6c7a89;
+  padding: 24px 16px;
+  font-size: 0.9rem;
+}
+
+.scratch-footer a {
+  color: #1d4ed8;
+  text-decoration: none;
+}
+
+/* ----- Anchor offset so jump links don't hide behind nothing ----- */
+section[id] {
+  scroll-margin-top: 20px;
+}
+
+/* ----- Mobile responsive tweaks ----- */
+@media (max-width: 640px) {
+  .page-wrapper {
+    padding: 24px 16px 60px;
+  }
+  .hero-block,
+  .section-card {
+    padding: 20px;
+  }
+  .hero-block h1 {
+    font-size: 1.7rem;
+  }
+  .top-nav {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}

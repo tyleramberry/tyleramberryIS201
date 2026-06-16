@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<!--
+  webapp.html: single-file game called "AI Agent Builder"
+  HTML, CSS, and JS all live in this one file.
+  Concept: player is given a business problem and must pick the right
+  AI agent/automation to solve it. Tracks score, best score (JS only,
+  no localStorage), gives instant feedback, supports replays.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Agent Builder, Web App by Tyler Amberry</title>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* ============ THEME ============ */
+    :root {
+      --bg-0: #07091a;
+      --bg-1: #0f1330;
+      /* single-accent palette: shades of one blue family */
+      --neon-1: #60a5fa;   /* light blue */
+      --neon-2: #1d4ed8;   /* royal blue (brand accent) */
+      --neon-3: #93c5fd;   /* lighter highlight blue */
+      --text: #e8ecff;
+      --muted: #8c93b8;
+      --good: #60a5fa;
+      --bad:  #ff5b7a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 20% 10%, #1a1147 0%, var(--bg-0) 60%) fixed;
+      color: var(--text);
+      font-family: "Geist", "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* subtle animated background grid */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.9), transparent 80%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* glowing blobs */
+    .blob {
+      position: fixed;
+      width: 360px; height: 360px;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.45;
+      z-index: 0;
+      pointer-events: none;
+      animation: float 14s ease-in-out infinite;
+    }
+    .blob.b1 { background: var(--neon-2); top: -100px; left: -100px; }
+    .blob.b2 { background: var(--neon-1); bottom: -120px; right: -120px; animation-delay: -7s; }
+
+    @keyframes float {
+      0%, 100% { transform: translate(0, 0); }
+      50%      { transform: translate(40px, 30px); }
+    }
+
+    /* ============ LAYOUT ============ */
+    .top-bar {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .top-bar a {
+      color: var(--neon-1);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .top-bar a:hover { color: var(--neon-3); }
+
+    .brand {
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, var(--neon-1), var(--neon-2));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 8px;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 32px;
+    }
+
+    /* ============ SCORE BAR ============ */
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .score-pill {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 12px 16px;
+      text-align: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .score-pill .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+    }
+
+    .score-pill .value {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .score-pill.score .value   { color: var(--neon-1); }
+    .score-pill.best .value    { color: var(--neon-2); }
+    .score-pill.round .value   { color: var(--neon-3); }
+
+    /* ============ QUESTION CARD ============ */
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 18px;
+      padding: 28px;
+      box-shadow:
+        0 0 0 1px rgba(0, 245, 212, 0.05),
+        0 20px 50px rgba(0,0,0,0.5);
+      backdrop-filter: blur(10px);
+    }
+
+    .problem-label {
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--neon-1);
+      margin-bottom: 8px;
+    }
+
+    .problem-text {
+      font-size: 1.2rem;
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+
+    .option-btn {
+      text-align: left;
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      font-family: inherit;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--neon-1);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 245, 212, 0.15);
+    }
+
+    .option-btn:disabled { cursor: default; }
+
+    .option-btn.correct {
+      border-color: var(--good);
+      background: rgba(96, 165, 250, 0.12);
+      box-shadow: 0 0 0 1px var(--good), 0 0 20px rgba(96, 165, 250, 0.35);
+    }
+
+    .option-btn.wrong {
+      border-color: var(--bad);
+      background: rgba(255, 91, 122, 0.10);
+      box-shadow: 0 0 0 1px var(--bad);
+    }
+
+    /* ============ FEEDBACK + CONTROLS ============ */
+    .feedback {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      min-height: 24px;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .feedback.show { opacity: 1; transform: translateY(0); }
+    .feedback.good { background: rgba(96,165,250,0.10); border:1px solid rgba(96,165,250,0.35); color: var(--good); }
+    .feedback.bad  { background: rgba(255,91,122,0.10); border:1px solid rgba(255,91,122,0.35); color: var(--bad); }
+
+    .controls {
+      margin-top: 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .next-btn, .play-again-btn {
+      background: linear-gradient(90deg, var(--neon-1), var(--neon-2));
+      color: #07091a;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      font-family: inherit;
+    }
+
+    .next-btn:hover, .play-again-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(29, 78, 216, 0.45);
+    }
+
+    .next-btn[hidden] { display: none; }
+
+    .progress-text {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    /* ============ FINAL SCREEN ============ */
+    .final {
+      text-align: center;
+    }
+
+    .final h2 {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--neon-1), var(--neon-3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .final .big-score {
+      font-size: 4rem;
+      font-weight: 800;
+      margin: 12px 0;
+      color: var(--neon-1);
+      text-shadow: 0 0 20px rgba(96, 165, 250, 0.5);
+    }
+
+    .final .new-best {
+      display: inline-block;
+      margin-bottom: 16px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(29,78,216,0.15);
+      color: var(--neon-2);
+      font-weight: 700;
+      letter-spacing: 1px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%      { transform: scale(1.05); }
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-top: 32px;
+    }
+
+    .footer-note a { color: var(--neon-1); text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <!-- background glow -->
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+
+  <!-- top bar -->
+  <div class="top-bar">
+    <div class="brand">AI Agent Builder</div>
+    <div>
+      <a href="scratch.html">&larr; Back to Edge AI</a>
+    </div>
+  </div>
+
+  <main>
+    <h1 class="title">Pick the right AI for the job.</h1>
+    <p class="subtitle">
+      A small business is stuck. Match each one to the AI agent that
+      would actually solve their problem.
+    </p>
+
+    <!-- score bar -->
+    <div class="score-bar">
+      <div class="score-pill score">
+        <div class="label">Score</div>
+        <div class="value" id="scoreVal">0</div>
+      </div>
+      <div class="score-pill round">
+        <div class="label">Round</div>
+        <div class="value" id="roundVal">1 / 6</div>
+      </div>
+      <div class="score-pill best">
+        <div class="label">Best</div>
+        <div class="value" id="bestVal">0</div>
+      </div>
+    </div>
+
+    <!-- question card / final card -->
+    <div class="card" id="card">
+      <!-- Filled by JS -->
+    </div>
+
+    <p class="footer-note">
+      Built by Tyler Amberry · <a href="index.html">Home</a> ·
+      <a href="scratch.html">Edge AI</a>
+    </p>
+  </main>
+
+  <script>
+    // -------------------- GAME DATA --------------------
+    // Each round: a real-world small-business problem, a few AI options,
+    // and the index of the correct one (with a short explainer).
+    const ROUNDS = [
+      {
+        problem: "A small landscaping company is losing leads because no one replies to inquiries fast enough. Most prospects ghost within an hour.",
+        options: [
+          "Lead-response chatbot that auto-replies and books estimates 24/7",
+          "Inventory tracker for mulch and fertilizer",
+          "Social media post scheduler",
+          "Internal AI meeting note-taker",
+        ],
+        correct: 0,
+        why: "Speed-to-lead is the #1 conversion driver for service businesses. A response bot that engages within 60 seconds wins the contract.",
+      },
+      {
+        problem: "A boutique law firm spends hours every week digging through past case files to answer simple internal questions.",
+        options: [
+          "Lead-response chatbot on the website",
+          "Internal Q&A copilot trained on their document library",
+          "Inventory management agent",
+          "Email marketing scheduler",
+        ],
+        correct: 1,
+        why: "An internal RAG copilot turns a stack of PDFs into instant answers, perfect for knowledge-heavy professional services.",
+      },
+      {
+        problem: "A coffee shop chain wants to post consistent content across Instagram, TikTok, and Facebook but the manager keeps forgetting to schedule posts.",
+        options: [
+          "Voice-cloning agent",
+          "AI-powered social media scheduler with content suggestions",
+          "Customer service ticket router",
+          "Resume screening agent",
+        ],
+        correct: 1,
+        why: "A scheduling agent with content generation removes the bottleneck entirely and keeps the brand active 24/7.",
+      },
+      {
+        problem: "An ecommerce store gets 200+ customer service emails per week. Most are simple 'where is my order?' questions.",
+        options: [
+          "Automated order-status agent connected to the shipping API",
+          "Cold outbound sales agent",
+          "Personalized birthday email generator",
+          "Logo design generator",
+        ],
+        correct: 0,
+        why: "Auto-resolving routine 'WISMO' (where is my order) tickets can cut support volume by 60%+ and free humans for the hard stuff.",
+      },
+      {
+        problem: "A recruiter is drowning in 500 applications per role and can't shortlist fast enough. Good candidates are going to competitors.",
+        options: [
+          "AI scheduling assistant for meetings",
+          "Resume screening + ranking agent based on the job description",
+          "Inventory tracker",
+          "Translation chatbot",
+        ],
+        correct: 1,
+        why: "A structured screening agent ranks candidates against the JD in minutes, letting recruiters spend their time on top matches only.",
+      },
+      {
+        problem: "A small accounting firm wastes time re-entering data from client receipts into their bookkeeping software.",
+        options: [
+          "Social media scheduling agent",
+          "AI receipt-extraction + categorization workflow into their ledger",
+          "Voice-only call recording agent",
+          "Generic image generator",
+        ],
+        correct: 1,
+        why: "OCR + an LLM that knows your chart of accounts can turn hours of data entry into a 2-minute review.",
+      },
+    ];
+
+    // -------------------- STATE --------------------
+    let roundIndex = 0;
+    let score      = 0;
+    let bestScore  = 0;   // JS variable only. No localStorage, per spec.
+    let answered   = false;
+
+    // -------------------- DOM HOOKS --------------------
+    const card     = document.getElementById("card");
+    const scoreEl  = document.getElementById("scoreVal");
+    const bestEl   = document.getElementById("bestVal");
+    const roundEl  = document.getElementById("roundVal");
+
+    // -------------------- RENDER --------------------
+    function renderRound() {
+      answered = false;
+      const r = ROUNDS[roundIndex];
+      roundEl.textContent = `${roundIndex + 1} / ${ROUNDS.length}`;
+
+      card.innerHTML = `
+        <div class="problem-label">Problem ${roundIndex + 1}</div>
+        <div class="problem-text">${r.problem}</div>
+        <div class="options" id="opts"></div>
+        <div class="feedback" id="feedback"></div>
+        <div class="controls">
+          <div class="progress-text">Pick the best AI agent for the job.</div>
+          <button class="next-btn" id="nextBtn" hidden>Next &rarr;</button>
+        </div>
+      `;
+
+      const opts = document.getElementById("opts");
+      r.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.type = "button";
+        btn.textContent = opt;
+        btn.addEventListener("click", () => handleAnswer(i, btn));
+        opts.appendChild(btn);
+      });
+
+      document.getElementById("nextBtn").addEventListener("click", advance);
+    }
+
+    function handleAnswer(choice, btn) {
+      if (answered) return;
+      answered = true;
+
+      const r = ROUNDS[roundIndex];
+      const correctBtn = document.querySelectorAll(".option-btn")[r.correct];
+      const feedback = document.getElementById("feedback");
+      const nextBtn  = document.getElementById("nextBtn");
+
+      // disable all buttons
+      document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+
+      if (choice === r.correct) {
+        score++;
+        scoreEl.textContent = score;
+        btn.classList.add("correct");
+        feedback.className = "feedback show good";
+        feedback.innerHTML = `<strong>Nailed it.</strong> ${r.why}`;
+      } else {
+        btn.classList.add("wrong");
+        correctBtn.classList.add("correct");
+        feedback.className = "feedback show bad";
+        feedback.innerHTML = `<strong>Not quite.</strong> ${r.why}`;
+      }
+
+      nextBtn.hidden = false;
+      nextBtn.textContent =
+        roundIndex === ROUNDS.length - 1 ? "See results" : "Next →";
+    }
+
+    function advance() {
+      roundIndex++;
+      if (roundIndex >= ROUNDS.length) {
+        renderFinal();
+      } else {
+        renderRound();
+      }
+    }
+
+    function renderFinal() {
+      // update best (in-memory only, per spec)
+      let beatBest = false;
+      if (score > bestScore) {
+        bestScore = score;
+        beatBest = true;
+        bestEl.textContent = bestScore;
+      }
+
+      const total = ROUNDS.length;
+      let msg;
+      if (score === total)        msg = "Perfect run. You'd make a solid AI consultant.";
+      else if (score >= total - 1) msg = "Excellent. Clearly thinking like a founder.";
+      else if (score >= total / 2) msg = "Not bad. A few of those agent matchups are tricky.";
+      else                         msg = "Worth another shot. These patterns repeat in the real world.";
+
+      card.innerHTML = `
+        <div class="final">
+          <h2>Round complete</h2>
+          ${beatBest ? '<div class="new-best">★ NEW BEST</div>' : ''}
+          <div class="big-score">${score} / ${total}</div>
+          <p style="color: var(--muted); margin: 0 0 24px;">${msg}</p>
+          <button class="play-again-btn" id="playAgain">Play again</button>
+        </div>
+      `;
+
+      document.getElementById("playAgain").addEventListener("click", resetGame);
+    }
+
+    function resetGame() {
+      roundIndex = 0;
+      score = 0;
+      scoreEl.textContent = "0";
+      renderRound();
+    }
+
+    // -------------------- BOOT --------------------
+    renderRound();
+  </script>
+</body>
+</html>
