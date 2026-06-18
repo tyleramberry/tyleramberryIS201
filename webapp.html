@@ -159,6 +159,8 @@
     .score-pill.score .value   { color: var(--neon-1); }
     .score-pill.best .value    { color: var(--neon-2); }
     .score-pill.round .value   { color: var(--neon-3); }
+    .score-pill.time  .value   { color: var(--neon-1); transition: color 0.2s ease; }
+    .score-pill.time.low .value { color: var(--bad); }
 
     /* ============ QUESTION CARD ============ */
     .card {
@@ -357,6 +359,10 @@
         <div class="label">Round</div>
         <div class="value" id="roundVal">1 / 6</div>
       </div>
+      <div class="score-pill time" id="timePill">
+        <div class="label">Time</div>
+        <div class="value" id="timeVal">30s</div>
+      </div>
       <div class="score-pill best">
         <div class="label">Best</div>
         <div class="value" id="bestVal">0</div>
@@ -448,22 +454,76 @@
     ];
 
     // -------------------- STATE --------------------
-    let roundIndex = 0;
-    let score      = 0;
-    let bestScore  = 0;   // JS variable only. No localStorage, per spec.
-    let answered   = false;
+    const ROUND_SECONDS = 30;
+    let roundIndex    = 0;
+    let score         = 0;
+    let bestScore     = 0;   // JS variable only. No localStorage, per spec.
+    let answered      = false;
+    let currentRounds = [];  // shuffled per game, with shuffled options
+    let timerId       = null;
+    let timeLeft      = ROUND_SECONDS;
 
     // -------------------- DOM HOOKS --------------------
     const card     = document.getElementById("card");
     const scoreEl  = document.getElementById("scoreVal");
     const bestEl   = document.getElementById("bestVal");
     const roundEl  = document.getElementById("roundVal");
+    const timeEl   = document.getElementById("timeVal");
+    const timePill = document.getElementById("timePill");
+
+    // -------------------- HELPERS --------------------
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    // Build a fresh game: shuffle round order, then shuffle options within each
+    // round (remapping the `correct` index to the new position).
+    function buildGame() {
+      currentRounds = shuffle(ROUNDS).map(r => {
+        const indexed = r.options.map((text, i) => ({ text, wasCorrect: i === r.correct }));
+        const shuffled = shuffle(indexed);
+        return {
+          problem: r.problem,
+          options: shuffled.map(o => o.text),
+          correct: shuffled.findIndex(o => o.wasCorrect),
+          why: r.why,
+        };
+      });
+    }
+
+    function stopTimer() {
+      if (timerId !== null) {
+        clearInterval(timerId);
+        timerId = null;
+      }
+    }
+
+    function startTimer() {
+      stopTimer();
+      timeLeft = ROUND_SECONDS;
+      timeEl.textContent = `${timeLeft}s`;
+      timePill.classList.remove("low");
+      timerId = setInterval(() => {
+        timeLeft--;
+        timeEl.textContent = `${timeLeft}s`;
+        if (timeLeft <= 10) timePill.classList.add("low");
+        if (timeLeft <= 0) {
+          stopTimer();
+          handleTimeout();
+        }
+      }, 1000);
+    }
 
     // -------------------- RENDER --------------------
     function renderRound() {
       answered = false;
-      const r = ROUNDS[roundIndex];
-      roundEl.textContent = `${roundIndex + 1} / ${ROUNDS.length}`;
+      const r = currentRounds[roundIndex];
+      roundEl.textContent = `${roundIndex + 1} / ${currentRounds.length}`;
 
       card.innerHTML = `
         <div class="problem-label">Problem ${roundIndex + 1}</div>
@@ -471,7 +531,7 @@
         <div class="options" id="opts"></div>
         <div class="feedback" id="feedback"></div>
         <div class="controls">
-          <div class="progress-text">Pick the best AI agent for the job.</div>
+          <div class="progress-text">Pick the best AI agent for the job. 30s per round.</div>
           <button class="next-btn" id="nextBtn" hidden>Next &rarr;</button>
         </div>
       `;
@@ -487,13 +547,15 @@
       });
 
       document.getElementById("nextBtn").addEventListener("click", advance);
+      startTimer();
     }
 
     function handleAnswer(choice, btn) {
       if (answered) return;
       answered = true;
+      stopTimer();
 
-      const r = ROUNDS[roundIndex];
+      const r = currentRounds[roundIndex];
       const correctBtn = document.querySelectorAll(".option-btn")[r.correct];
       const feedback = document.getElementById("feedback");
       const nextBtn  = document.getElementById("nextBtn");
@@ -516,12 +578,33 @@
 
       nextBtn.hidden = false;
       nextBtn.textContent =
-        roundIndex === ROUNDS.length - 1 ? "See results" : "Next →";
+        roundIndex === currentRounds.length - 1 ? "See results" : "Next →";
+    }
+
+    // Called when the 30s timer expires before the user picks.
+    function handleTimeout() {
+      if (answered) return;
+      answered = true;
+
+      const r = currentRounds[roundIndex];
+      const correctBtn = document.querySelectorAll(".option-btn")[r.correct];
+      const feedback = document.getElementById("feedback");
+      const nextBtn  = document.getElementById("nextBtn");
+
+      document.querySelectorAll(".option-btn").forEach(b => b.disabled = true);
+      correctBtn.classList.add("correct");
+      feedback.className = "feedback show bad";
+      feedback.innerHTML = `<strong>Time's up.</strong> ${r.why}`;
+
+      nextBtn.hidden = false;
+      nextBtn.textContent =
+        roundIndex === currentRounds.length - 1 ? "See results" : "Next →";
     }
 
     function advance() {
+      stopTimer();
       roundIndex++;
-      if (roundIndex >= ROUNDS.length) {
+      if (roundIndex >= currentRounds.length) {
         renderFinal();
       } else {
         renderRound();
@@ -529,6 +612,10 @@
     }
 
     function renderFinal() {
+      stopTimer();
+      timeEl.textContent = "—";
+      timePill.classList.remove("low");
+
       // update best (in-memory only, per spec)
       let beatBest = false;
       if (score > bestScore) {
@@ -537,7 +624,7 @@
         bestEl.textContent = bestScore;
       }
 
-      const total = ROUNDS.length;
+      const total = currentRounds.length;
       let msg;
       if (score === total)        msg = "Perfect run. You'd make a solid AI consultant.";
       else if (score >= total - 1) msg = "Excellent. Clearly thinking like a founder.";
@@ -558,13 +645,16 @@
     }
 
     function resetGame() {
+      stopTimer();
       roundIndex = 0;
       score = 0;
       scoreEl.textContent = "0";
+      buildGame();
       renderRound();
     }
 
     // -------------------- BOOT --------------------
+    buildGame();
     renderRound();
   </script>
 </body>
